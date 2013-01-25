@@ -47,7 +47,7 @@ public class Main {
 					"Column is not invalid! such as: family1:qualifier1,family2:qualifier2");
 
 		String startDateStr = cmd.getOptionValue("s");
-		long startDate = DateFormatUtil.formatStringTimeToLong2("19700101");
+		long startDate = -1L;
 		if (null != startDateStr && startDateStr.length() > 0) {
 			if (startDateStr.length() == 8) {
 				startDate = DateFormatUtil
@@ -86,17 +86,22 @@ public class Main {
 
 		Scan scan = new Scan();
 		if (column != null) {
-			byte[][] colkey = KeyValue.parseColumn(Bytes.toBytes(column));
-			if (colkey.length > 1) {
-				scan.addColumn(colkey[0], colkey[1]);
-				// conf.set("conf.columnfamily",
-				// Bytes.toStringBinary(colkey[0]));
-				// conf.set("conf.columnqualifier",
-				// Bytes.toStringBinary(colkey[1]));
-			} else {
-				scan.addFamily(colkey[0]);
-				// conf.set("conf.columnfamily",
-				// Bytes.toStringBinary(colkey[0]));
+			String[] arr = column.split(",", -1);
+			if (null != arr && arr.length > 0) {
+				for (String c : arr) {
+					byte[][] colkey = KeyValue.parseColumn(Bytes.toBytes(c));
+					if (colkey.length > 1) {
+						scan.addColumn(colkey[0], colkey[1]);
+						// conf.set("conf.columnfamily",
+						// Bytes.toStringBinary(colkey[0]));
+						// conf.set("conf.columnqualifier",
+						// Bytes.toStringBinary(colkey[1]));
+					} else {
+						scan.addFamily(colkey[0]);
+						// conf.set("conf.columnfamily",
+						// Bytes.toStringBinary(colkey[0]));
+					}
+				}
 			}
 			scan.setTimeRange(startDate, endDate);
 			scan.setMaxVersions(versions);

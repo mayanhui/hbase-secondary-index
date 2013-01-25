@@ -14,9 +14,10 @@ import net.hbase.secondaryindex.util.Const;
 
 public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 
-	// private byte[] columnFamily = null;
-	// private byte[] columnqualifier = null;
-	private String column = null;
+	private byte[] columnFamily = null;
+	private byte[] columnQualifier = null;
+
+	// private String column = null;
 
 	@Override
 	protected void setup(Context context) throws IOException,
@@ -25,7 +26,7 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 		// "conf.columnfamily"));
 		// columnqualifier = Bytes.toBytes(context.getConfiguration().get(
 		// "conf.columnqualifier"));
-		column = context.getConfiguration().get("conf.column");
+		// column = context.getConfiguration().get("conf.column");
 	}
 
 	@Override
@@ -36,13 +37,16 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 			for (KeyValue kv : columns.list()) {
 				value = Bytes.toStringBinary(kv.getValue());
 				long ts = kv.getTimestamp();
+				columnFamily = kv.getFamily();
+				columnQualifier = kv.getQualifier();
 
 				byte[] rowkey = row.get();
-				byte[] columnFamily = Const.COLUMN_FAMILY_CF1;
+				byte[] cf = Const.COLUMN_FAMILY_CF1;
 				byte[] qualifier = Const.COLUMN_RK;
 				if (null != value && value.length() > 0) {
-					Put put = new Put(Bytes.toBytes(column + "_" + value), ts);
-					put.add(columnFamily, qualifier, rowkey);
+					Put put = new Put(Bytes.toBytes(Bytes.toString(columnFamily)
+							+ ":"+ Bytes.toString(columnQualifier) + "_" + value), ts);
+					put.add(cf, qualifier, rowkey);
 					context.write(row, put);
 				}
 			}
