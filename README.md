@@ -1,6 +1,11 @@
+############################################################
+########### Methods of building secondary index ############
+############################################################
+
 1.Many ways to build index
 
 1.1 MapReduce
+
 Using integration mapreduce to build hbase index for main table. The main structure is:
 
 (1) scan input table by TableMapper<ImmutableBytesWritable, Writable>
@@ -15,6 +20,9 @@ Using integration mapreduce to build hbase index for main table. The main struct
 
 1.2  
 
+##############################################################
+###################### MapReduce #############################
+##############################################################
 
 2 MapReduce Usage
 
