@@ -36,8 +36,6 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 			for (KeyValue kv : columns.list()) {
 				value = Bytes.toStringBinary(kv.getValue());
 				long ts = kv.getTimestamp();
-//				System.out.println(value + "\t" + Bytes.toString(kv.getValue())
-//						+ "\t");
 
 				byte[] rowkey = row.get();
 				byte[] columnFamily = Const.COLUMN_FAMILY_CF1;

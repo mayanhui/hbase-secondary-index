@@ -11,6 +11,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
@@ -24,6 +26,8 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 public class Main {
+	static final Log LOG = LogFactory.getLog(Main.class);
+
 	public static final String NAME = "Build-Secondary-Index";
 
 	static ConfigProperties config = ConfigFactory.getInstance()
@@ -38,10 +42,9 @@ public class Main {
 		String inputTable = cmd.getOptionValue("i");
 		String column = cmd.getOptionValue("c");
 		conf.set("conf.column", column);
-		if(column.matches("")){
-			
-		}else 
-			throw new Exception("Column is not invalid! such as: family1:qualifier1,family2:qualifier2");
+		if (column.indexOf(":") < 0 && column.indexOf(",") < 0)
+			throw new Exception(
+					"Column is not invalid! such as: family1:qualifier1,family2:qualifier2");
 
 		String startDateStr = cmd.getOptionValue("s");
 		long startDate = DateFormatUtil.formatStringTimeToLong2("19700101");
@@ -75,7 +78,7 @@ public class Main {
 		if (null != singleIndex && singleIndex.length() > 0) {
 			isBuildSingleIndex = Boolean.parseBoolean(singleIndex);
 		}
-		
+
 		if (!isBuildSingleIndex) {
 			throw new Exception(
 					"The version just support to build index for single column! Please remove option '-si'.");
@@ -86,33 +89,34 @@ public class Main {
 			byte[][] colkey = KeyValue.parseColumn(Bytes.toBytes(column));
 			if (colkey.length > 1) {
 				scan.addColumn(colkey[0], colkey[1]);
-//				conf.set("conf.columnfamily", Bytes.toStringBinary(colkey[0]));
-//				conf.set("conf.columnqualifier",
-//						Bytes.toStringBinary(colkey[1]));
+				// conf.set("conf.columnfamily",
+				// Bytes.toStringBinary(colkey[0]));
+				// conf.set("conf.columnqualifier",
+				// Bytes.toStringBinary(colkey[1]));
 			} else {
 				scan.addFamily(colkey[0]);
-//				conf.set("conf.columnfamily", Bytes.toStringBinary(colkey[0]));
+				// conf.set("conf.columnfamily",
+				// Bytes.toStringBinary(colkey[0]));
 			}
 			scan.setTimeRange(startDate, endDate);
 			scan.setMaxVersions(versions);
 		}
 
-		System.out.println(inputTable);
-		System.out.println(outputTable);
-		System.out.println(column);
-		System.out.println(startDateStr + " " + startDate);
-		System.out.println(endDateStr + " " + endDate);
-		System.out.println(singleIndex + " " + isBuildSingleIndex);
-		System.out.println(versionStr + " " + versions);
+		LOG.info("Build hbase secondary index. From table{" + inputTable
+				+ "} to table{" + outputTable + "} with condition: \ncolumns="
+				+ column + "\nstartdate=" + startDate + "\nendate=" + endDate
+				+ "\nversions=" + versions + "\ninBuildSingleIndex="
+				+ isBuildSingleIndex);
 
 		// hbase master
 		conf.set(ConfigProperties.CONFIG_NAME_HBASE_MASTER,
 				config.getProperty(ConfigProperties.CONFIG_NAME_HBASE_MASTER));
 		// zookeeper quorum
-		conf.set(ConfigProperties.CONFIG_NAME_HBASE_ZOOKEEPER_QUORUM,
+		conf.set(
+				ConfigProperties.CONFIG_NAME_HBASE_ZOOKEEPER_QUORUM,
 				config.getProperty(ConfigProperties.CONFIG_NAME_HBASE_ZOOKEEPER_QUORUM));
 
-		Job job = new Job(conf, "Build secodary index in " + inputTable
+		Job job = new Job(conf, "Build hbase secodary index in " + inputTable
 				+ ", write to " + outputTable);
 		job.setJarByClass(Main.class);
 		TableMapReduceUtil
