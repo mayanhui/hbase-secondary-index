@@ -1,10 +1,9 @@
-
 #More details, see wiki page: 
 https://github.com/mayanhui/hbase-secondary-index/wiki
 
-############################################################
-########### Methods of building secondary index ############
-############################################################
+###################################################
+## Methods of building secondary index ############
+###################################################
 
 1.Many ways to build index
 
@@ -24,9 +23,9 @@ Using integration mapreduce to build hbase index for main table. The main struct
 
 1.2  
 
-##############################################################
-###################### MapReduce #############################
-##############################################################
+#####################
+## MapReduce ########
+#####################
 
 2 MapReduce Usage
 
