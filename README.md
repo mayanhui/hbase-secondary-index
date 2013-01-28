@@ -1,3 +1,7 @@
+
+#More details, see wiki page: 
+https://github.com/mayanhui/hbase-secondary-index/wiki
+
 ############################################################
 ########### Methods of building secondary index ############
 ############################################################
