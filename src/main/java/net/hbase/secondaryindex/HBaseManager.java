@@ -23,7 +23,6 @@ import org.apache.hadoop.hbase.filter.ColumnPaginationFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
 
-
 public class HBaseManager {
 	public Configuration config;
 	public HTable table;
@@ -54,13 +53,7 @@ public class HBaseManager {
 		// m.put();
 		// m.testGet();
 		m.testScanGet();
-		
-//		Put riu = new Put(Bytes.toBytes("history"));
-//		riu.add(Const.CF1, Bytes.toBytes("ipad_totaluser"),
-//				Bytes.toBytes(849800L));
-//		m.put(riu, Const.IPAD_AGGREGATION_TABLE);
-		
-		
+
 	}
 
 	public void put(List<Put> puts, byte[] tableName) throws IOException {
@@ -89,9 +82,8 @@ public class HBaseManager {
 			for (int i = 0; i < columns.length; i++) {
 				get.addColumn(columnFamily, Bytes.toBytes(columns[i]));
 			}
-		} 
-		if (null != columnFamily
-				&& (null == columns || columns.length == 0)) {
+		}
+		if (null != columnFamily && (null == columns || columns.length == 0)) {
 			get.addFamily(columnFamily);
 		}
 		return table.get(get);
