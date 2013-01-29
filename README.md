@@ -1,4 +1,4 @@
-#More details, see wiki page: 
+#More details, see wiki page(Chinese wiki 中文使用手册): 
 https://github.com/mayanhui/hbase-secondary-index/wiki
 
 ###################################################
