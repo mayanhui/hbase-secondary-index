@@ -12,8 +12,12 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Writable;
 
 import net.hbase.secondaryindex.util.Const;
-
-public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
+/**
+ * Just build index for json column.
+ * @author mayanhui
+ *
+ */
+public class IndexJsonMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 
 	private byte[] columnFamily;
 	private byte[] columnQualifier;
@@ -25,10 +29,6 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 	@Override
 	protected void setup(Context context) throws IOException,
 			InterruptedException {
-		// columnFamily = Bytes.toBytes(context.getConfiguration().get(
-		// "conf.columnfamily"));
-		// columnqualifier = Bytes.toBytes(context.getConfiguration().get(
-		// "conf.columnqualifier"));
 		column = context.getConfiguration().get(Const.HBASE_CONF_COLUMN_NAME);
 		isBuildSingleIndex = context.getConfiguration().getBoolean(
 				Const.HBASE_CONF_ISBUILDSINGLEINDEX_NAME, true);

@@ -42,6 +42,8 @@ public class Main {
 		String outputTable = cmd.getOptionValue("o");
 		String inputTable = cmd.getOptionValue("i");
 		String column = cmd.getOptionValue("c");
+		String[] arr = column.split(",", -1);
+		String mapperType = null;
 		conf.set(Const.HBASE_CONF_COLUMN_NAME, column);
 		if (column.indexOf(":") < 0 && column.indexOf(",") < 0)
 			throw new Exception(
@@ -82,8 +84,7 @@ public class Main {
 
 		/* Max columns is 3 to build combined index! */
 		if (!isBuildSingleIndex) {
-			if (column.split(",", -1).length > 3
-					|| column.split(",", -1).length < 2) {
+			if (arr.length > 3 || arr.length < 2) {
 				throw new Exception(
 						"The max number of column for building 'combined index' is 3 and the min number is 2! [2,3]");
 			}
@@ -92,9 +93,17 @@ public class Main {
 		conf.setBoolean(Const.HBASE_CONF_ISBUILDSINGLEINDEX_NAME,
 				isBuildSingleIndex);
 
+		String json = cmd.getOptionValue("j");
+		if (null != json && json.length() > 0) {
+			if (arr.length > 1) {
+				throw new Exception(
+						"You are using the '-j' or '--json' option for building index for json field, so the '-c' or '--column' must contain only 1 column(json column)!");
+			}
+			mapperType = Const.MAPPER_TYPE_JSON;
+		}
+
 		Scan scan = new Scan();
 		if (column != null) {
-			String[] arr = column.split(",", -1);
 			if (null != arr && arr.length > 0) {
 				for (String c : arr) {
 					byte[][] colkey = KeyValue.parseColumn(Bytes.toBytes(c));
@@ -126,9 +135,9 @@ public class Main {
 		Job job = new Job(conf, "Build hbase secodary index in " + inputTable
 				+ ", write to " + outputTable);
 		job.setJarByClass(Main.class);
-		TableMapReduceUtil
-				.initTableMapperJob(inputTable, scan, IndexMapper.class,
-						ImmutableBytesWritable.class, Put.class, job);
+		TableMapReduceUtil.initTableMapperJob(inputTable, scan,
+				MapperWrapper.wrap(mapperType), ImmutableBytesWritable.class,
+				Put.class, job);
 		TableMapReduceUtil.initTableReducerJob(outputTable,
 				IdentityTableReducer.class, job);
 
@@ -178,6 +187,15 @@ public class Main {
 				true,
 				"if use single index. true means 'single index', false means 'combined index'(default is true). If build combined index, the max number of columns is 3.");
 		o.setArgName("single-index");
+		o.setRequired(false);
+		options.addOption(o);
+
+		o = new Option(
+				"j",
+				"json",
+				true,
+				"json fields to build index. The max number of fields is 3! This kind of data uses IndexJsonMapper.class.");
+		o.setArgName("json fields");
 		o.setRequired(false);
 		options.addOption(o);
 

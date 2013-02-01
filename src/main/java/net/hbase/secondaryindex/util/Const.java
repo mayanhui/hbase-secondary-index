@@ -19,6 +19,9 @@ public class Const {
 
 	public static final String ROWKEY_DEFAULT_SEPARATOR = "_";
 	public static final String FAMILY_COLUMN_SEPARATOR = ":";
-    
-	
+
+	/* mapper */
+	public static final String MAPPER_TYPE_JSON = "json";
+	public static final String MAPPER_TYPE_ROWKEY = "rowkey";
+
 }
