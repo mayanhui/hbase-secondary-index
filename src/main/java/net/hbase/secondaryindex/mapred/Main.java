@@ -2,6 +2,7 @@ package net.hbase.secondaryindex.mapred;
 
 import net.hbase.secondaryindex.util.ConfigFactory;
 import net.hbase.secondaryindex.util.ConfigProperties;
+import net.hbase.secondaryindex.util.Const;
 import net.hbase.secondaryindex.util.DateFormatUtil;
 
 import org.apache.commons.cli.CommandLine;
@@ -41,7 +42,7 @@ public class Main {
 		String outputTable = cmd.getOptionValue("o");
 		String inputTable = cmd.getOptionValue("i");
 		String column = cmd.getOptionValue("c");
-		conf.set("conf.column", column);
+		conf.set(Const.HBASE_CONF_COLUMN_NAME, column);
 		if (column.indexOf(":") < 0 && column.indexOf(",") < 0)
 			throw new Exception(
 					"Column is not invalid! such as: family1:qualifier1,family2:qualifier2");
@@ -79,10 +80,17 @@ public class Main {
 			isBuildSingleIndex = Boolean.parseBoolean(singleIndex);
 		}
 
+		/* Max columns is 3 to build combined index! */
 		if (!isBuildSingleIndex) {
-			throw new Exception(
-					"The version just support to build index for single column! Please remove option '-si'.");
+			if (column.split(",", -1).length > 3
+					|| column.split(",", -1).length < 2) {
+				throw new Exception(
+						"The max number of column for building 'combined index' is 3 and the min number is 2! [2,3]");
+			}
 		}
+
+		conf.setBoolean(Const.HBASE_CONF_ISBUILDSINGLEINDEX_NAME,
+				isBuildSingleIndex);
 
 		Scan scan = new Scan();
 		if (column != null) {
@@ -92,14 +100,8 @@ public class Main {
 					byte[][] colkey = KeyValue.parseColumn(Bytes.toBytes(c));
 					if (colkey.length > 1) {
 						scan.addColumn(colkey[0], colkey[1]);
-						// conf.set("conf.columnfamily",
-						// Bytes.toStringBinary(colkey[0]));
-						// conf.set("conf.columnqualifier",
-						// Bytes.toStringBinary(colkey[1]));
 					} else {
 						scan.addFamily(colkey[0]);
-						// conf.set("conf.columnfamily",
-						// Bytes.toStringBinary(colkey[0]));
 					}
 				}
 			}
@@ -174,7 +176,7 @@ public class Main {
 				"si",
 				"sindex",
 				true,
-				"if use single index. true means 'single index', false means 'combined index'(default is true)");
+				"if use single index. true means 'single index', false means 'combined index'(default is true). If build combined index, the max number of columns is 3.");
 		o.setArgName("single-index");
 		o.setRequired(false);
 		options.addOption(o);
