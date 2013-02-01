@@ -32,14 +32,6 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 		column = context.getConfiguration().get(Const.HBASE_CONF_COLUMN_NAME);
 		isBuildSingleIndex = context.getConfiguration().getBoolean(
 				Const.HBASE_CONF_ISBUILDSINGLEINDEX_NAME, true);
-		if (!isBuildSingleIndex) {
-			String[] arr = column.split(",", -1);
-			colNameValSetrMap = new HashMap<String, Set<String>>(arr.length);
-			for (int i = 0; i < arr.length; i++) {
-				colNameValSetrMap.put(arr[i], new HashSet<String>());
-			}
-		}
-
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -78,17 +70,23 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 
 			/* build combined index */
 			if (!isBuildSingleIndex) {
-				Vector<Vector> comb = new Vector<Vector>();
+				// initial column name and values map
 				String[] arr = column.split(",", -1);
+				colNameValSetrMap = new HashMap<String, Set<String>>(arr.length);
+				for (int i = 0; i < arr.length; i++) {
+					colNameValSetrMap.put(arr[i], new HashSet<String>());
+				}
+
 				// remove empty columns
 				Map<String, Set<String>> cleanedMap = removeEmptyEntry(colNameValSetrMap); // valid
 				if (cleanedMap.size() > 1 && cleanedMap.size() < 4
 						&& cleanedMap.size() <= arr.length) {
+					// The existing columns of this rowkey is 3 and the input
+					// 'column' is 3 too.
 					if (cleanedMap.size() == 3) {
 						Set<String> cn0 = cleanedMap.get(arr[0]);
 						Set<String> cn1 = cleanedMap.get(arr[1]);
 						Set<String> cn2 = cleanedMap.get(arr[2]);
-
 						for (String v0 : cn0) {
 							for (String v1 : cn1) {
 								for (String v2 : cn2) {
@@ -102,7 +100,7 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 									source.add(arr[2]
 											+ Const.ROWKEY_DEFAULT_SEPARATOR
 											+ v2);
-									comb = Combination
+									Vector<Vector> comb = Combination
 											.getLowerLimitCombinations(source,
 													2);
 									if (null != comb && comb.size() > 0) {
@@ -120,7 +118,8 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 								}
 							}
 						}
-
+						// The input 'column' is 2 or 3, and the existing
+						// columns of this rowkey is 2.
 					} else if (cleanedMap.size() == 2) {
 						Set<String> cn0 = null;
 						Set<String> cn1 = null;
