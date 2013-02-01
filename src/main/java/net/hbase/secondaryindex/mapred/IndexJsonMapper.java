@@ -12,12 +12,15 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Writable;
 
 import net.hbase.secondaryindex.util.Const;
+
 /**
  * Just build index for json column.
+ * 
  * @author mayanhui
- *
+ * 
  */
-public class IndexJsonMapper extends TableMapper<ImmutableBytesWritable, Writable> {
+public class IndexJsonMapper extends
+		TableMapper<ImmutableBytesWritable, Writable> {
 
 	private byte[] columnFamily;
 	private byte[] columnQualifier;
@@ -38,18 +41,18 @@ public class IndexJsonMapper extends TableMapper<ImmutableBytesWritable, Writabl
 	@Override
 	public void map(ImmutableBytesWritable row, Result columns, Context context)
 			throws IOException {
-		String value = null;
+		String json = null;
 		byte[] rowkey = row.get();
 		byte[] cf = Const.COLUMN_FAMILY_CF1;
 		byte[] qualifier = Const.COLUMN_RK;
 
 		try {
 			for (KeyValue kv : columns.list()) {
-				value = Bytes.toStringBinary(kv.getValue());
+				json = Bytes.toStringBinary(kv.getValue()); // json column value
 				long ts = kv.getTimestamp();
 				columnFamily = kv.getFamily();
 				columnQualifier = kv.getQualifier();
-
+				
 				String columnName = Bytes.toString(columnFamily)
 						+ Const.FAMILY_COLUMN_SEPARATOR
 						+ Bytes.toString(columnQualifier);
