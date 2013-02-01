@@ -5,9 +5,9 @@ https://github.com/mayanhui/hbase-secondary-index/wiki
 ## Methods of building secondary index ############
 ###################################################
 
-1.Many ways to build index
+##1.Many ways to build index
 
-1.1 MapReduce
+###1.1 MapReduce
 
 Using integration mapreduce to build hbase index for main table. The main structure is:
 
@@ -21,15 +21,15 @@ Using integration mapreduce to build hbase index for main table. The main struct
 
 
 
-1.2  
+###1.2  
 
 #####################
 ## MapReduce ########
 #####################
 
-2 MapReduce Usage
+##2 MapReduce Usage
 
-2.1 Build from source code
+###2.1 Build from source code
 Download the source code first and then use maven to build jar.
 go into the project and do:
 
@@ -37,7 +37,12 @@ mvn install
 
 Note: You need to install maven >= 2.2.1
 
-2.2 Build index
+###2.2 use jar
+You can see the jar file in root directory of project:
+hbase-secondary-index-0.1.jar
+You can use it directly!
+
+###2.3 Build index
 Use the example of buildindex.sh in directory 'src/main/resources'
 Such as:
 
