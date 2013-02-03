@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.hbase.secondaryindex.util.Const;
+
 public class Test {
 	public static void main(String args[]) throws Exception {
 		String str = "mail";
@@ -30,6 +32,9 @@ public class Test {
 		}
 		list.remove("2");
 		System.out.println(list);
-		
+		str = "[test start]";
+		if(str.startsWith(Const.JSON_ARRAY_START)){
+			System.out.println(str);
+		}
 	}
 }

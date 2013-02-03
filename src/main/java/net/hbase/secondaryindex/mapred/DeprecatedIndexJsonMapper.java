@@ -12,24 +12,31 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Writable;
 
 import net.hbase.secondaryindex.util.Const;
+import net.hbase.secondaryindex.util.JsonUtil;
 
-public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
+/**
+ * Just build index for json column.
+ * 
+ * @author mayanhui
+ * 
+ */
+@Deprecated
+public class DeprecatedIndexJsonMapper extends
+		TableMapper<ImmutableBytesWritable, Writable> {
 
-	private byte[] columnFamily;
-	private byte[] columnQualifier;
 	private boolean isBuildSingleIndex;
 
 	private String column;
+	private String jsonFields;
 	private Map<String, Set<String>> colNameValSetrMap;
+
+	private JsonUtil jsonUtil = new JsonUtil();
 
 	@Override
 	protected void setup(Context context) throws IOException,
 			InterruptedException {
-		// columnFamily = Bytes.toBytes(context.getConfiguration().get(
-		// "conf.columnfamily"));
-		// columnqualifier = Bytes.toBytes(context.getConfiguration().get(
-		// "conf.columnqualifier"));
 		column = context.getConfiguration().get(Const.HBASE_CONF_COLUMN_NAME);
+		jsonFields = context.getConfiguration().get(Const.HBASE_CONF_JSON_NAME);
 		isBuildSingleIndex = context.getConfiguration().getBoolean(
 				Const.HBASE_CONF_ISBUILDSINGLEINDEX_NAME, true);
 	}
@@ -38,14 +45,14 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 	@Override
 	public void map(ImmutableBytesWritable row, Result columns, Context context)
 			throws IOException {
-		String value = null;
+		String json = null;
 		byte[] rowkey = row.get();
 		byte[] cf = Const.COLUMN_FAMILY_CF1;
 		byte[] qualifier = Const.COLUMN_RK;
-		String[] arr = null;
+		String[] arr = jsonFields.split(",", -1);
+
 		if (!isBuildSingleIndex) {
 			// initial column name and values map
-			arr = column.split(",", -1);
 			colNameValSetrMap = new HashMap<String, Set<String>>(arr.length);
 			for (int i = 0; i < arr.length; i++) {
 				colNameValSetrMap.put(arr[i], new HashSet<String>());
@@ -54,26 +61,42 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 
 		try {
 			for (KeyValue kv : columns.list()) {
-				value = Bytes.toStringBinary(kv.getValue());
+				json = Bytes.toStringBinary(kv.getValue()); // json column value
 				long ts = kv.getTimestamp();
-				columnFamily = kv.getFamily();
-				columnQualifier = kv.getQualifier();
 
-				String columnName = Bytes.toString(columnFamily)
-						+ Const.FAMILY_COLUMN_SEPARATOR
-						+ Bytes.toString(columnQualifier);
-				if (null != value && value.length() > 0) {
-					Put put = new Put(Bytes.toBytes(columnName
-							+ Const.ROWKEY_DEFAULT_SEPARATOR + value), ts);
-					put.add(cf, qualifier, rowkey);
-					context.write(row, put);
-					if (!isBuildSingleIndex) {
-						Set<String> colValSet = colNameValSetrMap
-								.get(columnName);
-						colValSet.add(value);
-						colNameValSetrMap.put(columnName, colValSet);
+				/* build single column index */
+				for (String jf : arr) {
+					List<String> jfValueList = new ArrayList<String>();
+					// json array
+					if (json.startsWith(Const.JSON_ARRAY_START)) {
+						jfValueList = jsonUtil.evaluateArray(json, jf);
+					} else {// single json object
+						String jfValue = jsonUtil.evaluate(json, "$." + jf)
+								.toString();
+						jfValueList.add(jfValue);
+					}
+
+					for (String jfValue : jfValueList) {
+						if (null != jfValue && jfValue.trim().length() > 0) {
+							Put put = new Put(
+									Bytes.toBytes(column
+											+ Const.ROWKEY_DEFAULT_SEPARATOR
+											+ jf
+											+ Const.ROWKEY_DEFAULT_SEPARATOR
+											+ jfValue), ts);
+							put.add(cf, qualifier, rowkey);
+							context.write(row, put);
+
+							if (!isBuildSingleIndex) {
+								Set<String> colValSet = colNameValSetrMap
+										.get(jf);
+								colValSet.add(jfValue);
+								colNameValSetrMap.put(jf, colValSet);
+							}
+						}
 					}
 				}
+
 			}
 
 			/* build combined index */
@@ -106,10 +129,15 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 													2);
 									if (null != comb && comb.size() > 0) {
 										for (Vector v : comb) {
-											String indexRowkey = v.toString()
-													.replaceAll(", ", "_")
-													.replaceAll("\\[", "")
-													.replaceAll("\\]", "");
+											String indexRowkey = column
+													+ Const.ROWKEY_DEFAULT_SEPARATOR
+													+ v.toString()
+															.replaceAll(", ",
+																	"_")
+															.replaceAll("\\[",
+																	"")
+															.replaceAll("\\]",
+																	"");
 											Put put = new Put(
 													Bytes.toBytes(indexRowkey));
 											put.add(cf, qualifier, rowkey);
@@ -143,7 +171,9 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 
 						for (String v0 : cn0) {
 							for (String v1 : cn1) {
-								String indexRowkey = arrList.get(0)
+								String indexRowkey = column
+										+ Const.ROWKEY_DEFAULT_SEPARATOR
+										+ arrList.get(0)
 										+ Const.ROWKEY_DEFAULT_SEPARATOR + v0
 										+ Const.ROWKEY_DEFAULT_SEPARATOR
 										+ arrList.get(1)
@@ -159,7 +189,7 @@ public class IndexMapper extends TableMapper<ImmutableBytesWritable, Writable> {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Error: " + e.getMessage() + ", Row: "
-					+ Bytes.toString(row.get()) + ", Value: " + value);
+					+ Bytes.toString(row.get()) + ", Value: " + json);
 		}
 	}
 
