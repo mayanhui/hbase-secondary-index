@@ -39,6 +39,7 @@ public class Main {
 		String[] otherArgs = new GenericOptionsParser(conf, args)
 				.getRemainingArgs();
 		CommandLine cmd = parseArgs(otherArgs);
+		Scan scan = new Scan();
 		String outputTable = cmd.getOptionValue("o");
 		String inputTable = cmd.getOptionValue("i");
 		String column = cmd.getOptionValue("c");
@@ -108,10 +109,39 @@ public class Main {
 			conf.set(Const.HBASE_CONF_JSON_NAME, json);
 		}
 
-		Scan scan = new Scan();
+		String rowkey = cmd.getOptionValue("r");
+		if (null != rowkey && rowkey.length() > 0) {
+			if (!column.equals(Const.MAPPER_TYPE_ROWKEY)) {
+				throw new Exception(
+						"You are using the '-r' or '--rowkey' option for building index for rowkey, so the '-c' or '--column' must be rowkey");
+			}
+			String[] jarr = rowkey.split(",", -1);
+			if (jarr.length != 3
+					|| rowkey.indexOf(Const.PARAMETER_ISROWKEY) < 0) {
+				throw new Exception(
+						"The input rowkey field must be 2. You must be point the new rowkey field. use 'isrowkey:2'");
+			}
+
+			mapperType = Const.MAPPER_TYPE_ROWKEY;
+			conf.set(Const.HBASE_CONF_ROWKEY_NAME, rowkey);
+
+			/* batch and caching */
+			scan.setBatch(0);
+			scan.setCaching(10000);
+		}
+
+		/* Must be only one mapper type once */
+		if (null != json && null != rowkey) {
+			throw new Exception(
+					"Must be only one mapper type. -r or -j option appear only once a time.");
+		}
+
+		/* configure scan */
 		if (column != null) {
 			if (null != arr && arr.length > 0) {
 				for (String col : arr) {
+					if (col.equals(Const.MAPPER_TYPE_ROWKEY))
+						continue;
 					byte[][] colkey = KeyValue.parseColumn(Bytes.toBytes(col));
 					if (colkey.length > 1) {
 						scan.addColumn(colkey[0], colkey[1]);
@@ -120,9 +150,9 @@ public class Main {
 					}
 				}
 			}
-			scan.setTimeRange(startDate, endDate);
-			scan.setMaxVersions(versions);
 		}
+		scan.setTimeRange(startDate, endDate);
+		scan.setMaxVersions(versions);
 
 		LOG.info("Build hbase secondary index. From table{" + inputTable
 				+ "} to table{" + outputTable + "} with condition: \ncolumns="
@@ -163,8 +193,11 @@ public class Main {
 		o.setRequired(true);
 		options.addOption(o);
 
-		o = new Option("c", "column", true,
-				"column to store row data into (must exist)");
+		o = new Option(
+				"c",
+				"column",
+				true,
+				"column to store row data into (must exist). Such as: cf1:age,cf2:tag,cf2:msg  or rowkey or rowkey,cf1:age. The last two usage are for 'rowkey' index building.");
 		o.setArgName("family:qualifier");
 		o.setRequired(true);
 		options.addOption(o);
@@ -202,6 +235,18 @@ public class Main {
 				true,
 				"json fields to build index. The max number of fields is 3! This kind of data uses IndexJsonMapper.class.");
 		o.setArgName("json fields");
+		o.setRequired(false);
+		options.addOption(o);
+
+		o = new Option(
+				"r",
+				"rowkey",
+				true,
+				"rowkey fields to build index. The max number of fields is 2! This kind of data uses IndexRowkeyMapper.class. The format is: "
+						+ "uid:1,msgid:2,isrowkey:1 \n uid and msgid are the field name, 1 and 2 is the order in the rowkey(like: uid_msgid_ts). isrowkey is the "
+						+ "label to define which field is the new rowkey. The separator in rowkey is _ . You can use validate column to build incremental index. "
+						+ "If use validate column, you need to add a column to -c parameter, the -c should be 'rowkey,cf1:age'");
+		o.setArgName("rowkey fields");
 		o.setRequired(false);
 		options.addOption(o);
 

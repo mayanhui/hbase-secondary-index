@@ -17,6 +17,7 @@ public class Const {
 	public static final String HBASE_CONF_COLUMN_NAME = "conf.column";
 	public static final String HBASE_CONF_ISBUILDSINGLEINDEX_NAME = "conf.isbuildsingleindex";
 	public static final String HBASE_CONF_JSON_NAME = "conf.json";
+	public static final String HBASE_CONF_ROWKEY_NAME = "conf.rowkey";
 
 	public static final String ROWKEY_DEFAULT_SEPARATOR = "_";
 	public static final String FAMILY_COLUMN_SEPARATOR = ":";
@@ -27,5 +28,8 @@ public class Const {
 	/* mapper type */
 	public static final String MAPPER_TYPE_JSON = "json";
 	public static final String MAPPER_TYPE_ROWKEY = "rowkey";
+	
+	
+	public static final String PARAMETER_ISROWKEY = "isrowkey";
 
 }

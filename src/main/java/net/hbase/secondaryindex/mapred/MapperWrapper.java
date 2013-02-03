@@ -13,7 +13,7 @@ public class MapperWrapper {
 			if (type.equals(Const.MAPPER_TYPE_JSON))
 				c = IndexJsonMapper.class;
 			else if (type.equals(Const.MAPPER_TYPE_ROWKEY))
-				c = IndexJsonMapper.class;
+				c = IndexRowkeyMapper.class;
 		}
 		return c;
 	}
