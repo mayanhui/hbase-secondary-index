@@ -99,14 +99,20 @@ public class Main {
 				throw new Exception(
 						"You are using the '-j' or '--json' option for building index for json field, so the '-c' or '--column' must contain only 1 column(json column)!");
 			}
+			String[] jarr = json.split(",", -1);
+			if (jarr.length < 1 || jarr.length > 3) {
+				throw new Exception("The input json field is between [1,3].");
+			}
+
 			mapperType = Const.MAPPER_TYPE_JSON;
+			conf.set(Const.HBASE_CONF_JSON_NAME, json);
 		}
 
 		Scan scan = new Scan();
 		if (column != null) {
 			if (null != arr && arr.length > 0) {
-				for (String c : arr) {
-					byte[][] colkey = KeyValue.parseColumn(Bytes.toBytes(c));
+				for (String col : arr) {
+					byte[][] colkey = KeyValue.parseColumn(Bytes.toBytes(col));
 					if (colkey.length > 1) {
 						scan.addColumn(colkey[0], colkey[1]);
 					} else {
@@ -122,7 +128,7 @@ public class Main {
 				+ "} to table{" + outputTable + "} with condition: \ncolumns="
 				+ column + "\nstartdate=" + startDate + "\nendate=" + endDate
 				+ "\nversions=" + versions + "\ninBuildSingleIndex="
-				+ isBuildSingleIndex);
+				+ isBuildSingleIndex + "\njson=" + json);
 
 		// hbase master
 		conf.set(ConfigProperties.CONFIG_NAME_HBASE_MASTER,

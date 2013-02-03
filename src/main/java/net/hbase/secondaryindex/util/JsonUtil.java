@@ -2,10 +2,12 @@ package net.hbase.secondaryindex.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,7 +16,6 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonParser.Feature;
-import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
@@ -68,21 +69,51 @@ public class JsonUtil {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void evaluateArray(String jsonString, String pathString)
+	public List<String> evaluateArray(String jsonString, String pathString)
 			throws JsonParseException, JsonMappingException, IOException {
-
+		List<String> list = new ArrayList<String>();
 		if (jsonString == null || jsonString == "" || pathString == null
 				|| pathString == "") {
-			return;
+			return null;
+		}
+
+		List result = MAPPER.readValue(jsonString, new TypeReference<List>() {
+		});
+		String[] arr = pathString.split(",", -1);
+		for (Object o : result) {
+			LinkedHashMap m = (LinkedHashMap) o;
+			if (arr.length == 1)
+				list.add(m.get(pathString).toString());
+			else if (arr.length > 1) {
+				StringBuilder sb = new StringBuilder();
+				for (String path : arr) {
+					sb.append(m.get(path).toString() + ",");
+				}
+				if (sb.length() > 0)
+					sb.setLength(sb.length() - 1);
+				list.add(sb.toString());
+			}
+		}
+		return list;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Set<String> evaluateDistinctArray(String jsonString,
+			String pathString) throws JsonParseException, JsonMappingException,
+			IOException {
+		Set<String> set = new HashSet<String>();
+		if (jsonString == null || jsonString == "" || pathString == null
+				|| pathString == "") {
+			return null;
 		}
 
 		List result = MAPPER.readValue(jsonString, new TypeReference<List>() {
 		});
 		for (Object o : result) {
 			LinkedHashMap m = (LinkedHashMap) o;
-			System.out.println((String) m.get("area") + "\t"
-					+ m.get("category") + "\t" + m.get("type"));
+			set.add(m.get(pathString).toString());
 		}
+		return set;
 	}
 
 	/**
