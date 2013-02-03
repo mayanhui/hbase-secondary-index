@@ -32,6 +32,8 @@ public class IndexRowkeyMapper extends
 	@Override
 	public void map(ImmutableBytesWritable row, Result columns, Context context)
 			throws IOException {
+		boolean valid = false;
+		boolean hit = false;
 		try {
 			byte[] rowkey = row.get();
 			byte[] cf = Const.COLUMN_FAMILY_CF1;
@@ -41,6 +43,7 @@ public class IndexRowkeyMapper extends
 			long ts = System.currentTimeMillis();
 			String[] arr = column.split(",", -1);
 			if (arr.length == 2) {
+				valid = true;
 				for (String col : arr) {
 					for (KeyValue kv : columns.list()) {
 						String columnName = Bytes.toString(kv.getFamily())
@@ -49,11 +52,16 @@ public class IndexRowkeyMapper extends
 						if (!col.equals(Const.MAPPER_TYPE_ROWKEY)
 								&& columnName.equals(col)) {
 							ts = kv.getTimestamp();
+							hit = true;
 							break;
 						}
 					}
 				}
 			}
+
+			// valid column timestamp value does not exist
+			if (valid && !hit)
+				return;
 
 			String rowkeyStr = Bytes.toStringBinary(rowkey);
 
