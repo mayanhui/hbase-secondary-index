@@ -46,7 +46,8 @@ public class Main {
 		String[] arr = column.split(",", -1);
 		String mapperType = null;
 		conf.set(Const.HBASE_CONF_COLUMN_NAME, column);
-		if (column.indexOf(":") < 0 && column.indexOf(",") < 0)
+		if (column.indexOf(":") < 0 && column.indexOf(",") < 0
+				&& !column.equals(Const.MAPPER_TYPE_ROWKEY))
 			throw new Exception(
 					"Column is not invalid! such as: family1:qualifier1,family2:qualifier2");
 
@@ -111,9 +112,9 @@ public class Main {
 
 		String rowkey = cmd.getOptionValue("r");
 		if (null != rowkey && rowkey.length() > 0) {
-			if (!column.equals(Const.MAPPER_TYPE_ROWKEY)) {
+			if (column.indexOf(Const.MAPPER_TYPE_ROWKEY) < 0) {
 				throw new Exception(
-						"You are using the '-r' or '--rowkey' option for building index for rowkey, so the '-c' or '--column' must be rowkey");
+						"You are using the '-r' or '--rowkey' option for building index for rowkey, so the '-c' or '--column' must contain rowkey");
 			}
 			String[] jarr = rowkey.split(",", -1);
 			if (jarr.length != 3
@@ -158,7 +159,7 @@ public class Main {
 				+ "} to table{" + outputTable + "} with condition: \ncolumns="
 				+ column + "\nstartdate=" + startDate + "\nendate=" + endDate
 				+ "\nversions=" + versions + "\ninBuildSingleIndex="
-				+ isBuildSingleIndex + "\njson=" + json);
+				+ isBuildSingleIndex + "\njson=" + json + "\nrowkey=");
 
 		// hbase master
 		conf.set(ConfigProperties.CONFIG_NAME_HBASE_MASTER,
