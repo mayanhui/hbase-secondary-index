@@ -15,9 +15,6 @@ import net.hbase.secondaryindex.util.Const;
 public class IndexRowkeyMapper extends
 		TableMapper<ImmutableBytesWritable, Writable> {
 
-	// private byte[] columnFamily;
-	// private byte[] columnQualifier;
-	//
 	private String column;
 	private String rowkeyFields;
 
