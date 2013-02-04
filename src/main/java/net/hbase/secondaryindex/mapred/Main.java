@@ -83,15 +83,6 @@ public class Main {
 		if (null != singleIndex && singleIndex.length() > 0) {
 			isBuildSingleIndex = Boolean.parseBoolean(singleIndex);
 		}
-
-		/* Max columns is 3 to build combined index! */
-		if (!isBuildSingleIndex) {
-			if (arr.length > 3 || arr.length < 2) {
-				throw new Exception(
-						"The max number of column for building 'combined index' is 3 and the min number is 2! [2,3]");
-			}
-		}
-
 		conf.setBoolean(Const.HBASE_CONF_ISBUILDSINGLEINDEX_NAME,
 				isBuildSingleIndex);
 
@@ -135,6 +126,15 @@ public class Main {
 		if (null != json && null != rowkey) {
 			throw new Exception(
 					"Must be only one mapper type. -r or -j option appear only once a time.");
+		}
+
+		/* Max columns is 3 to build combined index! */
+		if (!isBuildSingleIndex) {
+			if ((null == json || json.trim().length() == 0)
+					&& (arr.length > 3 || arr.length < 2)) {
+				throw new Exception(
+						"The max number of column for building 'combined index' is 3 and the min number is 2! [2,3]");
+			}
 		}
 
 		/* configure scan */

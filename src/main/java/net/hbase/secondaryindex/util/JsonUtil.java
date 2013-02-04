@@ -11,10 +11,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonParser.Feature;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -81,17 +81,23 @@ public class JsonUtil {
 		});
 		String[] arr = pathString.split(",", -1);
 		for (Object o : result) {
-			LinkedHashMap m = (LinkedHashMap) o;
-			if (arr.length == 1)
-				list.add(m.get(pathString).toString());
-			else if (arr.length > 1) {
-				StringBuilder sb = new StringBuilder();
-				for (String path : arr) {
-					sb.append(m.get(path).toString() + ",");
+			if (o instanceof LinkedHashMap) {
+				LinkedHashMap m = (LinkedHashMap) o;
+				if (arr.length == 1)
+					list.add(m.get(pathString).toString());
+				else if (arr.length > 1) {
+					StringBuilder sb = new StringBuilder();
+					for (String path : arr) {
+						sb.append(m.get(path).toString() + ",");
+					}
+					if (sb.length() > 0)
+						sb.setLength(sb.length() - 1);
+					list.add(sb.toString());
 				}
-				if (sb.length() > 0)
-					sb.setLength(sb.length() - 1);
-				list.add(sb.toString());
+			} else if (o instanceof String) {
+				String str = (String) o;
+				str = str.replaceAll(Const.ROWKEY_DEFAULT_SEPARATOR, ",");
+				list.add(str);
 			}
 		}
 		return list;
@@ -110,8 +116,16 @@ public class JsonUtil {
 		List result = MAPPER.readValue(jsonString, new TypeReference<List>() {
 		});
 		for (Object o : result) {
-			LinkedHashMap m = (LinkedHashMap) o;
-			set.add(m.get(pathString).toString());
+			if (o instanceof LinkedHashMap) {
+				LinkedHashMap m = (LinkedHashMap) o;
+				set.add(m.get(pathString).toString());
+			} else if (o instanceof String) {
+				String str = (String) o;
+				String[] arr = str.split(Const.ROWKEY_DEFAULT_SEPARATOR, -1);
+				for (String s : arr) {
+					set.add(s);
+				}
+			}
 		}
 		return set;
 	}
@@ -154,11 +168,9 @@ public class JsonUtil {
 		}
 		// Cache extractObject
 		Object extractObject = extractObjectCache.get(jsonString);
-		System.out.println(jsonString);
 		if (extractObject == null) {
 			try {
 				extractObject = MAPPER.readValue(jsonString, MAP_TYPE);
-				System.out.println("@" + extractObject);
 			} catch (Exception e) {
 				e.printStackTrace();
 				return null;
@@ -300,17 +312,22 @@ public class JsonUtil {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static void main(String[] args) throws JsonParseException,
 			IOException {
 		String json = "{'channel':'14','videoid':'5815053'}";
-		// json = "{\"channel\":\"14\",\"videoid\":\"5815053\"}";
 
 		json = "[{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"剧情\",\"counter\":2,\"time\":2,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"动作\",\"counter\":36,\"time\":36,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"剧情\",\"counter\":10,\"time\":10,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"港台\",\"category\":\"剧情\",\"counter\":22,\"time\":22,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"战争\",\"counter\":8,\"time\":8,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"惊悚\",\"counter\":35,\"time\":35,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"剧情\",\"counter\":5,\"time\":5,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"爱情\",\"counter\":18,\"time\":18,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"港台\",\"category\":\"动作\",\"counter\":124,\"time\":124,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"港台\",\"category\":\"喜剧\",\"counter\":21,\"time\":21,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"科幻\",\"counter\":34,\"time\":34,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"喜剧\",\"counter\":1,\"time\":1,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"古装\",\"counter\":7,\"time\":7,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"都市\",\"counter\":47,\"time\":47,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"爱情\",\"counter\":3,\"time\":3,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"爱情\",\"counter\":13,\"time\":13,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"喜剧\",\"counter\":16,\"time\":16,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"港台\",\"category\":\"爱情\",\"counter\":23,\"time\":23,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"犯罪\",\"counter\":135,\"time\":135,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"喜剧\",\"counter\":281,\"time\":281,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"韩国\",\"category\":\"剧情\",\"counter\":358,\"time\":358,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"动作\",\"counter\":4,\"time\":4,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"港台\",\"category\":\"犯罪\",\"counter\":33,\"time\":33,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"日本\",\"category\":\"校园\",\"counter\":43,\"time\":43,\"type\":\"动漫\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"警匪\",\"counter\":9,\"time\":9,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"日本\",\"category\":\"热血\",\"counter\":42,\"time\":42,\"type\":\"动漫\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"港台\",\"category\":\"悬疑\",\"counter\":55,\"time\":55,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"家庭\",\"counter\":58,\"time\":58,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"港台\",\"category\":\"都市\",\"counter\":70,\"time\":70,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"战争\",\"counter\":119,\"time\":119,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"娱乐\",\"counter\":284,\"time\":284,\"type\":\"综艺\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"港台\",\"category\":\"警匪\",\"counter\":363,\"time\":363,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"韩国\",\"category\":\"爱情\",\"counter\":449,\"time\":449,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"港台\",\"category\":\"惊悚\",\"counter\":32,\"time\":32,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"悬疑\",\"counter\":61,\"time\":61,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"悬疑\",\"counter\":226,\"time\":226,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"悬疑\",\"counter\":11,\"time\":11,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"伦理\",\"counter\":29,\"time\":29,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"日本\",\"category\":\"励志\",\"counter\":44,\"time\":44,\"type\":\"动漫\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"韩国\",\"category\":\"浪漫\",\"counter\":69,\"time\":69,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"校园\",\"counter\":71,\"time\":71,\"type\":\"动漫\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"日本\",\"category\":\"冒险\",\"counter\":77,\"time\":77,\"type\":\"动漫\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"犯罪\",\"counter\":161,\"time\":161,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"伦理\",\"counter\":162,\"time\":162,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"魔幻\",\"counter\":245,\"time\":245,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"武侠\",\"counter\":20,\"time\":20,\"type\":\"电视\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"日本\",\"category\":\"恶搞\",\"counter\":45,\"time\":45,\"type\":\"动漫\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"日本\",\"category\":\"魔幻\",\"counter\":46,\"time\":46,\"type\":\"动漫\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"萌系\",\"counter\":92,\"time\":92,\"type\":\"动漫\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"警匪\",\"counter\":134,\"time\":134,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"内地\",\"category\":\"武侠\",\"counter\":6,\"time\":6,\"type\":\"电影\",\"uid\":\"\"},{\"ID\":\"\",\"area\":\"欧美\",\"category\":\"推理\",\"counter\":51,\"time\":51,\"type\":\"动漫\",\"uid\":\"\"}]";
-		// json = "[{\"foo\": \"bar\"},{\"foo\": \"biz\"}]";
-		JsonFactory f = new JsonFactory();
-		JsonParser jp = f.createJsonParser(json);
+		// JsonFactory f = new JsonFactory();
+		// JsonParser jp = f.createJsonParser(json);
 
-		// ObjectMapper mapper = new ObjectMapper();
+		// BufferedReader br = new BufferedReader(new InputStreamReader(
+		// new FileInputStream("/root/test.txt")));
+		// String line = null;
+		// while (null != (line = br.readLine())) {
+		// json = line;
+		// }
+		System.out.println(json);
 		List result = MAPPER.readValue(json, new TypeReference<List>() {
 		});
 		System.out.println(result);
@@ -319,20 +336,10 @@ public class JsonUtil {
 			System.out.println((String) m.get("area") + "\t"
 					+ m.get("category") + "\t" + m.get("type"));
 		}
-		// JsonUt?il util = new JsonUtil();
-		// System.out.println(util.evaluate(result.get(1).toString(),
-		// "$.foo*"));
-		// advance stream to START_ARRAY first:
-		// jp.nextToken();
-		// and then each time, advance to opening START_OBJECT
-		// while (jp.nextToken() == JsonToken.START_OBJECT) {
-		// Foo foobar = mapper.readValue(jp, Foo.class);
-		// System.out.println(foobar);
-		// // process
-		// // after binding, stream points to closing END_OBJECT
-		// }
-		// JsonUtil util = new JsonUtil();
-		// System.out.println(util.evaluate(json, "$.*"));
-
+		JsonUtil u = new JsonUtil();
+		List<String> list = u.evaluateArray(json, "area,category,type");
+		for (String s : list) {
+			System.out.println(s);
+		}
 	}
 }

@@ -51,7 +51,7 @@ public class IndexJsonMapper extends
 
 		try {
 			for (KeyValue kv : columns.list()) {
-				json = Bytes.toStringBinary(kv.getValue()); // json column value
+				json = Bytes.toString(kv.getValue()); // json column value
 				long ts = kv.getTimestamp();
 
 				/* build single column index */
