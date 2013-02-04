@@ -34,7 +34,7 @@ Index type support:
 
 Command to build index:
 
-1. build single column index
+*1. build single column index
 
 hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i demo_table -o demo_table_index -c cf1:mid
 
@@ -42,7 +42,7 @@ hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i
 
 
 
-2. build multi single-column index together
+*2. build multi single-column index together
 
 hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i demo_table -o demo_table_index -c cf1:mid,cf1:age,cf2:msg
 
@@ -50,14 +50,14 @@ hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i
 
 
 
-3. build combined-column index
+*3. build combined-column index
 
 hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i demo_table -o demo_table_index -c cf1:mid,cf1:age,cf2:msg -si false
 
 hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i demo_table -o demo_table_index -c cf1:mid,cf1:age,cf2:msg -si false -s 20130101 -e 20130120 -v 1
 
 
-4. build json column index. single-field, combined-field index
+*4. build json column index. single-field, combined-field index
 
 hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i demo_table -o demo_table_index -c cf1:msg -j area,type,category 
 
@@ -68,7 +68,7 @@ hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i
 hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i demo_table -o demo_table_index -c cf1:msg -j area,type,category -si false -s 20130101 -e 20130120 -v 1
 
 
-5. build rowkey only index
+*5. build rowkey only index
 
 hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i demo_table -o demo_table_index -c rowkey -r uid:1,mid:2,isrowkey:1
 
