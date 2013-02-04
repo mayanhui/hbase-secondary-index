@@ -5,6 +5,15 @@ https://github.com/mayanhui/hbase-secondary-index/wiki
 ## Methods of building secondary index ############
 ###################################################
 
+##0.Environment
+
+* hadoop: 1.0.4
+* hbase: 0.94.0
+* zookeeper: 3.4.3
+* hive: 0.9.0
+* thrift: 0.9.0
+
+
 ##1.Many ways to build index
 
 ###1.1 MapReduce

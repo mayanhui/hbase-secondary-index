@@ -11,41 +11,27 @@
 
 	<name>hbase-secondary-index</name>
 
-    <properties>
-        <hadoop.version>1.0.4</hadoop.version>
-        <hbase.version>0.94.0</hbase.version>
-        <hive.version>0.9.0</hive.version>
-    </properties>
-
-
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase</artifactId>
-			<version>${hbase.version}</version>
+			<version>0.94.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-core</artifactId>
-			<version>${hadoop.version}</version>
-		</dependency>
-<!--
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-test</artifactId>
-			<version>${hadoop.version}</version>
+			<version>0.20.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-tools</artifactId>
-			<version>${hadoop.version}</version>
+			<artifactId>hadoop-common</artifactId>
+			<version>0.22.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-streaming</artifactId>
-			<version>${hadoop.version}</version>
+			<artifactId>hadoop-hdfs</artifactId>
+			<version>0.22.0</version>
 		</dependency>
--->
 		<dependency>
 			<groupId>com.hadoop</groupId>
 			<artifactId>hadoop-lzo</artifactId>
@@ -192,17 +178,17 @@
 								<artifactItem>
 									<groupId>org.apache.hive</groupId>
 									<artifactId>hive-common</artifactId>
-									<version>${hive.version}</version>
+									<version>0.9.0</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.hive</groupId>
 									<artifactId>hive-service</artifactId>
-									<version>${hive.version}</version>
+									<version>0.9.0</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.hive</groupId>
 									<artifactId>hive-metastore</artifactId>
-									<version>${hive.version}</version>
+									<version>0.9.0</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.thrift</groupId>
@@ -212,30 +198,23 @@
 								<artifactItem>
 									<groupId>org.apache.hbase</groupId>
 									<artifactId>hbase</artifactId>
-									<version>${hbase.version}</version>
+									<version>0.94.0</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.hadoop</groupId>
 									<artifactId>hadoop-core</artifactId>
-									<version>${hadoop.version}</version>
+									<version>0.20.2</version>
 								</artifactItem>
-<!--
-		<artifactItem>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-test</artifactId>
-			<version>${hadoop.version}</version>
-		</artifactItem>
-		<artifactItem>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-tools</artifactId>
-			<version>${hadoop.version}</version>
-		</artifactItem>
-		<artifactItem>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-streaming</artifactId>
-			<version>${hadoop.version}</version>
-		</artifactItem>	
--->							
+								<artifactItem>
+									<groupId>org.apache.hadoop</groupId>
+									<artifactId>hadoop-common</artifactId>
+									<version>0.22.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.hadoop</groupId>
+									<artifactId>hadoop-hdfs</artifactId>
+									<version>0.22.0</version>
+								</artifactItem>
 								<artifactItem>
 									<groupId>com.hadoop</groupId>
 									<artifactId>hadoop-lzo</artifactId>
