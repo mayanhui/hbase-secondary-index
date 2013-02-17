@@ -29,23 +29,6 @@
 			<artifactId>hadoop-core</artifactId>
 			<version>${hadoop.version}</version>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-test</artifactId>
-			<version>${hadoop.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-tools</artifactId>
-			<version>${hadoop.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-streaming</artifactId>
-			<version>${hadoop.version}</version>
-		</dependency>
--->
 		<dependency>
 			<groupId>com.hadoop</groupId>
 			<artifactId>hadoop-lzo</artifactId>
@@ -219,23 +202,6 @@
 									<artifactId>hadoop-core</artifactId>
 									<version>${hadoop.version}</version>
 								</artifactItem>
-<!--
-		<artifactItem>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-test</artifactId>
-			<version>${hadoop.version}</version>
-		</artifactItem>
-		<artifactItem>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-tools</artifactId>
-			<version>${hadoop.version}</version>
-		</artifactItem>
-		<artifactItem>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-streaming</artifactId>
-			<version>${hadoop.version}</version>
-		</artifactItem>	
--->							
 								<artifactItem>
 									<groupId>com.hadoop</groupId>
 									<artifactId>hadoop-lzo</artifactId>

@@ -20,6 +20,7 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.hbase.mapreduce.HRegionPartitioner;
 import org.apache.hadoop.hbase.mapreduce.IdentityTableReducer;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -172,11 +173,12 @@ public class Main {
 		Job job = new Job(conf, "Build hbase secodary index in " + inputTable
 				+ ", write to " + outputTable);
 		job.setJarByClass(Main.class);
+
 		TableMapReduceUtil.initTableMapperJob(inputTable, scan,
 				MapperWrapper.wrap(mapperType), ImmutableBytesWritable.class,
 				Put.class, job);
 		TableMapReduceUtil.initTableReducerJob(outputTable,
-				IdentityTableReducer.class, job);
+				IdentityTableReducer.class, job, HRegionPartitioner.class);
 
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 	}
