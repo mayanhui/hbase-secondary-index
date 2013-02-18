@@ -89,7 +89,18 @@ hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i
 
 
 
-###1.2  
+###1.2 ITHBase
+
+
+
+###1.3 IHBase
+
+
+
+###1.4 Coprocessor
+
+
+
 
 #####################
 ## MapReduce ########
