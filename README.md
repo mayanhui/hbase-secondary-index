@@ -93,16 +93,20 @@ hadoop jar hbase-secondary-index-0.1.jar net.hbase.secondaryindex.mapred.Main -i
 
 $HBASE_HOME/conf/hbase-site.xml：
 
-hbase.hlog.splitter.impl
+*hbase.hlog.splitter.impl
+
 org.apache.hadoop.hbase.regionserver.transactional.THLogSplitter
 
-hbase.regionserver.class
+*hbase.regionserver.class
+
 org.apache.hadoop.hbase.ipc.IndexedRegionInterface
 
-hbase.regionserver.impl
+*hbase.regionserver.impl
+
 org.apache.hadoop.hbase.regionserver.tableindexed.IndexedRegionServer
 
-hbase.hregion.impl
+*hbase.hregion.impl
+
 org.apache.hadoop.hbase.regionserver.tableindexed.IndexedRegion
 
 
