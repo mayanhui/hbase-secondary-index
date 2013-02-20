@@ -114,10 +114,15 @@ org.apache.hadoop.hbase.regionserver.tableindexed.IndexedRegion
 
 ###1.3 IHBase
 
+The implementation of this method is from https://github.com/ykulbak/ihbase. However, the code is not available at all due to many classes missing.
+This method is not recommended because it is invasive.
 
 
 ###1.4 Coprocessor
-
+A demo is implemented. This method is proposed from habse-0.92.0 and not perfect now. The characteristic are:
+* Must implement a train of code for an index. Poor Reusability.
+* Must disable table before using alter table. unfriendly method for online service.
+* Better than other online index building methods(invasive).
 
 
 
