@@ -1,7 +1,6 @@
 package org.apache.hadoop.hbase.util;
 
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
 
 public class ScanUtil {
@@ -43,8 +42,6 @@ public class ScanUtil {
 		for (byte[] column : columns) {
 			addColumn(scan, column);
 		}
-		Put put = new Put();
-		
 	}
 	
 	
