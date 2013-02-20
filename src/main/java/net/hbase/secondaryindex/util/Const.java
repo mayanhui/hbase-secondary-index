@@ -21,15 +21,16 @@ public class Const {
 
 	public static final String ROWKEY_DEFAULT_SEPARATOR = "_";
 	public static final String FAMILY_COLUMN_SEPARATOR = ":";
-	
+
 	public static final String JSON_ARRAY_START = "[";
-	
 
 	/* mapper type */
 	public static final String MAPPER_TYPE_JSON = "json";
 	public static final String MAPPER_TYPE_ROWKEY = "rowkey";
-	
-	
+
 	public static final String PARAMETER_ISROWKEY = "isrowkey";
+
+	public static final String HADOOP_MAP_SPECULATIVE_EXECUTION = "mapred.map.tasks.speculative.execution";
+	public static final String HADOOP_REDUCE_SPECULATIVE_EXECUTION = "mapred.reduce.tasks.speculative.execution";
 
 }

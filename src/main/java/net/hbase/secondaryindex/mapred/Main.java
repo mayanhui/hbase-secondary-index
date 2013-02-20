@@ -169,7 +169,11 @@ public class Main {
 		conf.set(
 				ConfigProperties.CONFIG_NAME_HBASE_ZOOKEEPER_QUORUM,
 				config.getProperty(ConfigProperties.CONFIG_NAME_HBASE_ZOOKEEPER_QUORUM));
-
+		
+		//set hadoop speculative execution to false
+		conf.setBoolean(Const.HADOOP_MAP_SPECULATIVE_EXECUTION, false);
+		conf.setBoolean(Const.HADOOP_REDUCE_SPECULATIVE_EXECUTION, false);
+		
 		Job job = new Job(conf, "Build hbase secodary index in " + inputTable
 				+ ", write to " + outputTable);
 		job.setJarByClass(Main.class);
