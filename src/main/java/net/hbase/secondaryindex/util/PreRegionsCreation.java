@@ -26,8 +26,7 @@ public class PreRegionsCreation {
 
 	public static final String NAME = "Pre-Region-Creation";
 
-	public int NUM_REGIONSERVERS; // double number of region
-									// server
+	public int NUM_REGIONSERVERS;
 	public static final String DEFAULT_START_KEY = "0";
 	public static final String DEFAULT_END_KEY = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
 
@@ -41,12 +40,15 @@ public class PreRegionsCreation {
 		config = HBaseConfiguration.create();
 		config.set(ConfigProperties.CONFIG_NAME_HBASE_MASTER,
 				cp.getProperty(ConfigProperties.CONFIG_NAME_HBASE_MASTER));
-		config.set("hbase.zookeeper.property.clientPort", "2181");
+		config.set(
+				ConfigProperties.CONFIG_NAME_HBASE_ZOOKEEPER_PROPRERTY_CLIENTPORT,
+				cp.getProperty(ConfigProperties.CONFIG_NAME_HBASE_ZOOKEEPER_PROPRERTY_CLIENTPORT));
 		config.set(
 				ConfigProperties.CONFIG_NAME_HBASE_ZOOKEEPER_QUORUM,
 				cp.getProperty(ConfigProperties.CONFIG_NAME_HBASE_ZOOKEEPER_QUORUM));
 
-		NUM_REGIONSERVERS = cp.getInt(
+		// double number of regionserver
+		NUM_REGIONSERVERS = 2 * cp.getInt(
 				ConfigProperties.CONFIG_NAME_HBASE_REGIONSERVER_NUM, 1);
 
 		try {

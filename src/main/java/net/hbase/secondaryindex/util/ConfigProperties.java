@@ -12,6 +12,7 @@ public class ConfigProperties extends Properties {
 	public static final String CONFIG_NAME_HBASE_MASTER = "hbase.master";
 	public static final String CONFIG_NAME_HBASE_ZOOKEEPER_QUORUM = "hbase.zookeeper.quorum";
 	public static final String CONFIG_NAME_HBASE_REGIONSERVER_NUM = "hbase.regionserver.num";
+	public static final String CONFIG_NAME_HBASE_ZOOKEEPER_PROPRERTY_CLIENTPORT = "hbase.zookeeper.property.clientPort";
 
 	/**
 	 * @Constructor
