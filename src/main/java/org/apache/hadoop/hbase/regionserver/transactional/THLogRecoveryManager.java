@@ -39,7 +39,6 @@ class THLogRecoveryManager {
     private static final Log LOG = LogFactory.getLog(THLogRecoveryManager.class);
 
     private final FileSystem fileSystem;
-    private final HRegionInfo regionInfo;
     private final Configuration conf;
 
     /**
@@ -47,14 +46,13 @@ class THLogRecoveryManager {
      */
     public THLogRecoveryManager(final TransactionalRegion region) {
         this.fileSystem = region.getFilesystem();
-        this.regionInfo = region.getRegionInfo();
+        region.getRegionInfo();
         this.conf = region.getConf();
     }
 
     // For Testing
     THLogRecoveryManager(final FileSystem fileSystem, final HRegionInfo regionInfo, final Configuration conf) {
         this.fileSystem = fileSystem;
-        this.regionInfo = regionInfo;
         this.conf = conf;
     }
 

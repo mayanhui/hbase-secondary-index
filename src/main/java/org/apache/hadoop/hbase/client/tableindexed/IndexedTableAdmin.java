@@ -127,7 +127,8 @@ public class IndexedTableAdmin extends HBaseAdmin {
     }
 
     private void reIndexTable(final byte[] baseTableName, final IndexSpecification indexSpec) throws IOException {
-        HTable baseTable = new HTable(this.getConfiguration(), baseTableName);
+        @SuppressWarnings("resource")
+		HTable baseTable = new HTable(this.getConfiguration(), baseTableName);
         HTable indexTable = new HTable(this.getConfiguration(), indexSpec.getIndexedTableName(baseTableName));
         Scan scan = new Scan();
         List<Put> batch = new ArrayList<Put>(batchSize + 1);

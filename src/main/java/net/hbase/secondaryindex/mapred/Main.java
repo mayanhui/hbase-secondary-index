@@ -33,7 +33,7 @@ public class Main {
 	public static final String NAME = "Build-Secondary-Index";
 
 	static ConfigProperties config = ConfigFactory.getInstance()
-			.getConfigProperties(ConfigFactory.BULK_IMPORT_CONFIG_PATH);
+			.getConfigProperties(ConfigFactory.INDEX_CONFIG_PATH);
 
 	public static void main(String[] args) throws Exception {
 		Configuration conf = HBaseConfiguration.create();
@@ -183,6 +183,7 @@ public class Main {
 				Put.class, job);
 		TableMapReduceUtil.initTableReducerJob(outputTable,
 				IdentityTableReducer.class, job, HRegionPartitioner.class);
+		TableMapReduceUtil.setNumReduceTasks(outputTable, job);
 
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 	}

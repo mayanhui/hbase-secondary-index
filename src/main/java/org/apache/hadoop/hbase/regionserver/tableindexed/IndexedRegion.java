@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.HConstants.OperationStatusCode;
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Delete;
@@ -38,9 +37,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.tableindexed.IndexSpecification;
 import org.apache.hadoop.hbase.client.tableindexed.IndexedTableDescriptor;
 import org.apache.hadoop.hbase.regionserver.FlushRequester;
-import org.apache.hadoop.hbase.regionserver.Leases;
 import org.apache.hadoop.hbase.regionserver.OperationStatus;
-import org.apache.hadoop.hbase.regionserver.transactional.THLog;
 import org.apache.hadoop.hbase.regionserver.transactional.TransactionalRegion;
 import org.apache.hadoop.hbase.regionserver.wal.HLog;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -51,11 +48,13 @@ public class IndexedRegion extends TransactionalRegion {
 
   private static final Log LOG = LogFactory.getLog(IndexedRegion.class);
 
-  private final Configuration conf;
+  @SuppressWarnings("unused")
+private final Configuration conf;
   private final IndexedTableDescriptor indexTableDescriptor;
   private final HTablePool tablePool;
 
-  public IndexedRegion(final Path basedir, final HLog log, final FileSystem fs,
+  @SuppressWarnings("deprecation")
+public IndexedRegion(final Path basedir, final HLog log, final FileSystem fs,
       final Configuration conf, final HRegionInfo regionInfo,
       final FlushRequester flushListener) throws IOException {
     super(basedir, log, fs, conf, regionInfo, flushListener);
@@ -65,13 +64,15 @@ public class IndexedRegion extends TransactionalRegion {
     this.tablePool = new HTablePool();
   }
 
-  private HTableInterface getIndexTable(final IndexSpecification index)
+  @SuppressWarnings("deprecation")
+private HTableInterface getIndexTable(final IndexSpecification index)
       throws IOException {
     return tablePool.getTable(index.getIndexedTableName(super.getRegionInfo()
         .getTableDesc().getName()));
   }
 
-  private void putTable(final HTableInterface t) {
+  @SuppressWarnings("deprecation")
+private void putTable(final HTableInterface t) {
     if (t == null) {
       return;
     }

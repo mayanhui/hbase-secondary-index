@@ -141,7 +141,8 @@ public class IndexSpecification implements Writable {
     return Bytes.add(baseTableName, Bytes.toBytes("-" + indexId));
   }
 
-  private static final HBaseConfiguration CONF = new HBaseConfiguration();
+  @SuppressWarnings("deprecation")
+private static final HBaseConfiguration CONF = new HBaseConfiguration();
   
   /** {@inheritDoc} */
   public void readFields(DataInput in) throws IOException {

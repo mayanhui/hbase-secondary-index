@@ -29,7 +29,7 @@ public class HBaseManager {
 	public HBaseAdmin admin;
 
 	ConfigProperties cp = ConfigFactory.getInstance().getConfigProperties(
-			ConfigFactory.BULK_IMPORT_CONFIG_PATH);
+			ConfigFactory.INDEX_CONFIG_PATH);
 
 	public HBaseManager() {
 		config = HBaseConfiguration.create();

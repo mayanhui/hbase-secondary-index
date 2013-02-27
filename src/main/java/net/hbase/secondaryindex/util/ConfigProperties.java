@@ -7,23 +7,26 @@ import java.util.Properties;
 public class ConfigProperties extends Properties {
 
 	private static final long serialVersionUID = -1851097272122935390L;
-	
+
 	public static final String CONFIG_NAME_MAPRED_QUEUE_NAME = "mapred.job.queue.name";
 	public static final String CONFIG_NAME_HBASE_MASTER = "hbase.master";
 	public static final String CONFIG_NAME_HBASE_ZOOKEEPER_QUORUM = "hbase.zookeeper.quorum";
-	
+	public static final String CONFIG_NAME_HBASE_REGIONSERVER_NUM = "hbase.regionserver.num";
+
 	/**
 	 * @Constructor
-	 * @param filePath is the class path to the config file
+	 * @param filePath
+	 *            is the class path to the config file
 	 */
 	protected ConfigProperties(final String filePath) {
-		final InputStream inStream = ConfigProperties.class.getResourceAsStream(filePath);
+		final InputStream inStream = ConfigProperties.class
+				.getResourceAsStream(filePath);
 		try {
 			load(inStream);
 		} catch (final IOException e) {
 			e.printStackTrace();
-			throw new NullPointerException("Failed to load config file: " +
-					filePath + ", error: " + e.getMessage());
+			throw new NullPointerException("Failed to load config file: "
+					+ filePath + ", error: " + e.getMessage());
 		} finally {
 			if (inStream != null) {
 				try {

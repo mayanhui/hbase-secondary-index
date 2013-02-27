@@ -57,7 +57,8 @@ public class HBaseBackedTransactionLogger implements TransactionLogger {
     public static void createTable(final Configuration conf) throws IOException {
         HTableDescriptor tableDesc = new HTableDescriptor(TABLE_NAME);
         tableDesc.addFamily(new HColumnDescriptor(INFO_FAMILY));
-        HBaseAdmin admin = new HBaseAdmin(conf);
+        @SuppressWarnings("resource")
+		HBaseAdmin admin = new HBaseAdmin(conf);
         if (!admin.tableExists(TABLE_NAME)) {
             admin.createTable(tableDesc);
         }
@@ -70,7 +71,8 @@ public class HBaseBackedTransactionLogger implements TransactionLogger {
         return tablePool.getTable(TABLE_NAME);
     }
 
-    private void putTable(final HTableInterface t) {
+    @SuppressWarnings("deprecation")
+	private void putTable(final HTableInterface t) {
         if (t == null) {
             return;
         }
@@ -90,7 +92,8 @@ public class HBaseBackedTransactionLogger implements TransactionLogger {
     }
 
     private void initTable(final Configuration conf) throws IOException {
-        HBaseAdmin admin = new HBaseAdmin(conf);
+        @SuppressWarnings("resource")
+		HBaseAdmin admin = new HBaseAdmin(conf);
 
         if (!admin.tableExists(TABLE_NAME)) {
             throw new RuntimeException("Table not created. Call createTable() first");

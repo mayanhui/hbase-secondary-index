@@ -3,7 +3,7 @@ package net.hbase.secondaryindex.util;
 import java.util.HashMap;
 
 public class ConfigFactory {
-	public static final String BULK_IMPORT_CONFIG_PATH = "/index.properties";
+	public static final String INDEX_CONFIG_PATH = "/index.properties";
 	
 	private static ConfigFactory instance = new ConfigFactory();
 	private HashMap<String, ConfigProperties> configMap = new HashMap<String, ConfigProperties>();

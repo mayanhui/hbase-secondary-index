@@ -78,7 +78,8 @@ public class TransactionManager {
 
             for (HRegionLocation location : transactionState.getParticipatingRegions()) {
 
-                TransactionalRegionInterface transactionalRegionServer = (TransactionalRegionInterface) connection
+                @SuppressWarnings("deprecation")
+				TransactionalRegionInterface transactionalRegionServer = (TransactionalRegionInterface) connection
                         .getHRegionConnection(location.getServerAddress());
                 int commitStatus = transactionalRegionServer.commitRequest(location.getRegionInfo().getRegionName(),
                     transactionState.getTransactionId());
@@ -165,7 +166,8 @@ public class TransactionManager {
                 if (transactionState.getRegionsToIngore().contains(location)) {
                     continue;
                 }
-                TransactionalRegionInterface transactionalRegionServer = (TransactionalRegionInterface) connection
+                @SuppressWarnings("deprecation")
+				TransactionalRegionInterface transactionalRegionServer = (TransactionalRegionInterface) connection
                         .getHRegionConnection(location.getServerAddress());
                 transactionalRegionServer.commit(location.getRegionInfo().getRegionName(),
                     transactionState.getTransactionId());
@@ -198,7 +200,8 @@ public class TransactionManager {
                 continue;
             }
             try {
-                TransactionalRegionInterface transactionalRegionServer = (TransactionalRegionInterface) connection
+                @SuppressWarnings("deprecation")
+				TransactionalRegionInterface transactionalRegionServer = (TransactionalRegionInterface) connection
                         .getHRegionConnection(location.getServerAddress());
 
                 transactionalRegionServer.abortTransaction(location.getRegionInfo().getRegionName(),

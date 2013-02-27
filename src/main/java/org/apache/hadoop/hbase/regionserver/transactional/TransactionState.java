@@ -608,6 +608,7 @@ class TransactionState {
 			throw new IllegalStateException("WriteAction is invalid");
 		}
 
+		@SuppressWarnings("deprecation")
 		List<KeyValue> getKeyValues() {
 			List<KeyValue> edits = new ArrayList<KeyValue>();
 			Collection<List<KeyValue>> kvsList;

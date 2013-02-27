@@ -88,7 +88,8 @@ public class TransactionalTable extends HTable {
      * @throws IOException
      * @since 0.20.0
      */
-    public Result get(final TransactionState transactionState, final Get get) throws IOException {
+    @SuppressWarnings("deprecation")
+	public Result get(final TransactionState transactionState, final Get get) throws IOException {
         return super.getConnection().getRegionServerWithRetries(
             new TransactionalServerCallable<Result>(super.getConnection(), super.getTableName(), get.getRow(),
                     transactionState) {
@@ -106,7 +107,8 @@ public class TransactionalTable extends HTable {
      * @throws IOException
      * @since 0.20.0
      */
-    public void delete(final TransactionState transactionState, final Delete delete) throws IOException {
+    @SuppressWarnings("deprecation")
+	public void delete(final TransactionState transactionState, final Delete delete) throws IOException {
         SingleVersionDeleteNotSupported.validateDelete(delete);
         super.getConnection().getRegionServerWithRetries(
             new TransactionalServerCallable<Object>(super.getConnection(), super.getTableName(), delete.getRow(),
@@ -131,7 +133,8 @@ public class TransactionalTable extends HTable {
      * @throws IOException
      * @since 0.20.0
      */
-    public synchronized void put(final TransactionState transactionState, final Put put) throws IOException {
+    @SuppressWarnings("deprecation")
+	public synchronized void put(final TransactionState transactionState, final Put put) throws IOException {
         // super.validatePut(put);
         super.getConnection().getRegionServerWithRetries(
             new TransactionalServerCallable<Object>(super.getConnection(), super.getTableName(), put.getRow(),

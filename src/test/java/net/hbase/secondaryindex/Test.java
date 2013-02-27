@@ -63,5 +63,8 @@ public class Test {
 		scan.setBatch(0);
 		scan.setCaching(10000);
 		System.out.println(scan.toJSON());
+		String s = new String(Bytes.toBytesBinary("attr:movt_area_\\xE6\\xAC\\xA7\\xE7\\xBE\\x8E_type_\\xE7\\x94\\xB5\\xE5\\xBD\\xB1"),"utf-8");
+		System.out.println(s);
+		
 	}
 }
