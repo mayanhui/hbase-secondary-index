@@ -15,22 +15,26 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.hbase.mapreduce.HRegionPartitioner;
-import org.apache.hadoop.hbase.mapreduce.IdentityTableReducer;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
+import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 public class Main {
 	static final Log LOG = LogFactory.getLog(Main.class);
 
 	public static final String NAME = "Build-Secondary-Index";
+	public static final String TEMP_INDEX_PATH = "/tmp/hbase-secondary-index";
 
 	static ConfigProperties config = ConfigFactory.getInstance()
 			.getConfigProperties(ConfigFactory.INDEX_CONFIG_PATH);
@@ -169,23 +173,46 @@ public class Main {
 		conf.set(
 				ConfigProperties.CONFIG_NAME_HBASE_ZOOKEEPER_QUORUM,
 				config.getProperty(ConfigProperties.CONFIG_NAME_HBASE_ZOOKEEPER_QUORUM));
-		
-		//set hadoop speculative execution to false
+
+		// set hadoop speculative execution to false
 		conf.setBoolean(Const.HADOOP_MAP_SPECULATIVE_EXECUTION, false);
 		conf.setBoolean(Const.HADOOP_REDUCE_SPECULATIVE_EXECUTION, false);
-		
+
+		Path tempIndexPath = new Path(TEMP_INDEX_PATH);
+		FileSystem fs = FileSystem.get(conf);
+		if (fs.exists(tempIndexPath)) {
+			fs.delete(tempIndexPath, true);
+		}
+
+		/* JOB-1: generate secondary index */
 		Job job = new Job(conf, "Build hbase secodary index in " + inputTable
-				+ ", write to " + outputTable);
+				+ ", write to " + outputTable + " JOB-1");
 		job.setJarByClass(Main.class);
 
 		TableMapReduceUtil.initTableMapperJob(inputTable, scan,
-				MapperWrapper.wrap(mapperType), ImmutableBytesWritable.class,
-				Put.class, job);
-		TableMapReduceUtil.initTableReducerJob(outputTable,
-				IdentityTableReducer.class, job, HRegionPartitioner.class);
-		TableMapReduceUtil.setNumReduceTasks(outputTable, job);
+				MapperWrapper.wrap(mapperType), Text.class, Text.class, job);
+		job.setNumReduceTasks(0);
+		job.setOutputFormatClass(TextOutputFormat.class);
+		FileOutputFormat.setOutputPath(job, tempIndexPath);
 
-		System.exit(job.waitForCompletion(true) ? 0 : 1);
+		int success = job.waitForCompletion(true) ? 0 : 1;
+
+		/* JOB-2: load index data into hbase */
+		if (success == 0) {
+			job = new Job(conf, "Build hbase secodary index in " + inputTable
+					+ ", write to " + outputTable + " JOB-2");
+			job.setJarByClass(Main.class);
+			job.setMapperClass(LoadMapper.class);
+			job.setNumReduceTasks(0);
+			job.setOutputFormatClass(TableOutputFormat.class);
+			job.getConfiguration().set(TableOutputFormat.OUTPUT_TABLE,
+					outputTable);
+
+			FileInputFormat.addInputPath(job, tempIndexPath);
+			success = job.waitForCompletion(true) ? 0 : 1;
+		}
+
+		System.exit(success);
 	}
 
 	private static CommandLine parseArgs(String[] args) throws ParseException {

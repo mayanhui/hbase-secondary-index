@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.*;
 
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 import net.hbase.secondaryindex.util.Const;
@@ -21,8 +21,7 @@ import net.hbase.secondaryindex.util.JsonUtil;
  * 
  */
 @Deprecated
-public class DeprecatedIndexJsonMapper extends
-		TableMapper<ImmutableBytesWritable, Writable> {
+public class DeprecatedIndexJsonMapper extends TableMapper<Writable, Writable> {
 
 	private boolean isBuildSingleIndex;
 
@@ -31,6 +30,10 @@ public class DeprecatedIndexJsonMapper extends
 	private Map<String, Set<String>> colNameValSetrMap;
 
 	private JsonUtil jsonUtil = new JsonUtil();
+	private long ts = System.currentTimeMillis();
+
+	private Text k = new Text();
+	private Text v = new Text();
 
 	@Override
 	protected void setup(Context context) throws IOException,
@@ -46,9 +49,14 @@ public class DeprecatedIndexJsonMapper extends
 	public void map(ImmutableBytesWritable row, Result columns, Context context)
 			throws IOException {
 		String json = null;
-		byte[] rowkey = row.get();
-		byte[] cf = Const.COLUMN_FAMILY_CF1;
-		byte[] qualifier = Const.COLUMN_RK;
+		// byte[] rowkey = row.get();
+		// byte[] cf = Const.COLUMN_FAMILY_CF1_BYTE;
+		// byte[] qualifier = Const.COLUMN_RK_BYTE;
+
+		String rowkey = new String(row.get());
+		String cf = Const.COLUMN_FAMILY_CF1_STRING;
+		String qualifier = Const.COLUMN_RK_STRING;
+
 		String[] arr = jsonFields.split(",", -1);
 
 		if (!isBuildSingleIndex) {
@@ -62,7 +70,7 @@ public class DeprecatedIndexJsonMapper extends
 		try {
 			for (KeyValue kv : columns.list()) {
 				json = Bytes.toStringBinary(kv.getValue()); // json column value
-				long ts = kv.getTimestamp();
+				ts = kv.getTimestamp();
 
 				/* build single column index */
 				for (String jf : arr) {
@@ -78,14 +86,22 @@ public class DeprecatedIndexJsonMapper extends
 
 					for (String jfValue : jfValueList) {
 						if (null != jfValue && jfValue.trim().length() > 0) {
-							Put put = new Put(
-									Bytes.toBytes(column
-											+ Const.ROWKEY_DEFAULT_SEPARATOR
-											+ jf
-											+ Const.ROWKEY_DEFAULT_SEPARATOR
-											+ jfValue), ts);
-							put.add(cf, qualifier, rowkey);
-							context.write(row, put);
+							// Put put = new Put(
+							// Bytes.toBytes(column
+							// + Const.ROWKEY_DEFAULT_SEPARATOR
+							// + jf
+							// + Const.ROWKEY_DEFAULT_SEPARATOR
+							// + jfValue), ts);
+							// put.add(cf, qualifier, rowkey);
+							// context.write(row, put);
+
+							k.set(column + Const.ROWKEY_DEFAULT_SEPARATOR + jf
+									+ Const.ROWKEY_DEFAULT_SEPARATOR + jfValue
+									+ Const.FIELD_COMMON_SEPARATOR + ts);
+							v.set(cf + Const.FIELD_COMMON_SEPARATOR + qualifier
+									+ Const.FIELD_COMMON_SEPARATOR + rowkey);
+
+							context.write(k, v);
 
 							if (!isBuildSingleIndex) {
 								Set<String> colValSet = colNameValSetrMap
@@ -128,20 +144,32 @@ public class DeprecatedIndexJsonMapper extends
 											.getLowerLimitCombinations(source,
 													2);
 									if (null != comb && comb.size() > 0) {
-										for (Vector v : comb) {
+										for (Vector vect : comb) {
 											String indexRowkey = column
 													+ Const.ROWKEY_DEFAULT_SEPARATOR
-													+ v.toString()
+													+ vect.toString()
 															.replaceAll(", ",
 																	"_")
 															.replaceAll("\\[",
 																	"")
 															.replaceAll("\\]",
 																	"");
-											Put put = new Put(
-													Bytes.toBytes(indexRowkey));
-											put.add(cf, qualifier, rowkey);
-											context.write(row, put);
+											// Put put = new Put(
+											// Bytes.toBytes(indexRowkey));
+											// put.add(cf, qualifier, rowkey);
+											// context.write(row, put);
+
+											k.set(indexRowkey
+													+ Const.FIELD_COMMON_SEPARATOR
+													+ ts);
+
+											v.set(cf
+													+ Const.FIELD_COMMON_SEPARATOR
+													+ qualifier
+													+ Const.FIELD_COMMON_SEPARATOR
+													+ rowkey);
+
+											context.write(k, v);
 										}
 									}
 								}
@@ -178,9 +206,20 @@ public class DeprecatedIndexJsonMapper extends
 										+ Const.ROWKEY_DEFAULT_SEPARATOR
 										+ arrList.get(1)
 										+ Const.ROWKEY_DEFAULT_SEPARATOR + v1;
-								Put put = new Put(Bytes.toBytes(indexRowkey));
-								put.add(cf, qualifier, rowkey);
-								context.write(row, put);
+								// Put put = new
+								// Put(Bytes.toBytes(indexRowkey));
+								// put.add(cf, qualifier, rowkey);
+								// context.write(row, put);
+
+								k.set(indexRowkey
+										+ Const.FIELD_COMMON_SEPARATOR + ts);
+
+								v.set(cf + Const.FIELD_COMMON_SEPARATOR
+										+ qualifier
+										+ Const.FIELD_COMMON_SEPARATOR + rowkey);
+
+								context.write(k, v);
+
 							}
 						}
 					}

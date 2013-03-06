@@ -3,20 +3,22 @@ package net.hbase.secondaryindex.mapred;
 import java.io.IOException;
 
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 import net.hbase.secondaryindex.util.Const;
 
-public class IndexRowkeyMapper extends
-		TableMapper<ImmutableBytesWritable, Writable> {
+public class IndexRowkeyMapper extends TableMapper<Writable, Writable> {
 
 	private String column;
 	private String rowkeyFields;
+
+	private Text k = new Text();
+	private Text v = new Text();
 
 	@Override
 	protected void setup(Context context) throws IOException,
@@ -33,8 +35,8 @@ public class IndexRowkeyMapper extends
 		boolean hit = false;
 		try {
 			byte[] rowkey = row.get();
-			byte[] cf = Const.COLUMN_FAMILY_CF1;
-			byte[] qualifier = null;
+			String cf = Const.COLUMN_FAMILY_CF1_STRING;
+			String qualifier = null;
 
 			// Get timestamp of validate column
 			long ts = System.currentTimeMillis();
@@ -61,7 +63,6 @@ public class IndexRowkeyMapper extends
 				return;
 
 			String rowkeyStr = Bytes.toStringBinary(rowkey);
-
 			String[] fieldArr = rowkeyFields.split(",", -1);
 			int rorder = -1;
 			for (String field : fieldArr) {
@@ -81,7 +82,7 @@ public class IndexRowkeyMapper extends
 					if (farr.length == 2) {
 						corder = Integer.parseInt(farr[1]) - 1;
 						if (corder != rorder)
-							qualifier = Bytes.toBytes(farr[0]);
+							qualifier = farr[0];
 					}
 				}
 			}
@@ -92,11 +93,11 @@ public class IndexRowkeyMapper extends
 			String[] rowkeyArr = rowkeyStr.split(
 					Const.ROWKEY_DEFAULT_SEPARATOR, -1);
 			if (rowkeyArr.length > rorder && rowkeyArr.length > corder) {
-				Put put = new Put(Bytes.toBytes(rowkeyArr[rorder]), ts);
-				put.add(cf, qualifier, Bytes.toBytes(rowkeyArr[corder]));
-				context.write(row, put);
+				k.set(rowkeyArr[rorder] + Const.FIELD_COMMON_SEPARATOR + ts);
+				v.set(cf + Const.FIELD_COMMON_SEPARATOR + qualifier
+						+ Const.FIELD_COMMON_SEPARATOR + rowkeyArr[corder]);
+				context.write(k, v);
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Error: " + e.getMessage() + ", Row: "

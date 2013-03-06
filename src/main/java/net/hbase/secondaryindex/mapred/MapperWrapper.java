@@ -17,8 +17,4 @@ public class MapperWrapper {
 		}
 		return c;
 	}
-
-	public static void main(String[] args) {
-		System.out.println(MapperWrapper.wrap(null));
-	}
 }
