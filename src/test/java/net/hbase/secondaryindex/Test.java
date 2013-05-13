@@ -24,26 +24,26 @@ public class Test {
 				System.out.println(s + ":" + s1);
 			}
 		}
-		
-		String[] arr = new String[]{"1","2","3"};
+
+		String[] arr = new String[] { "1", "2", "3" };
 		List<String> arrList = Arrays.asList(arr);
-//		arrList.remove(0);
+		// arrList.remove(0);
 		System.out.println(arrList);
-		
+
 		list = new ArrayList<String>();
 		for (String s : arr) {
-		    list.add(s);
+			list.add(s);
 		}
 		list.remove("2");
 		System.out.println(list);
 		str = "[test start]";
-		if(str.startsWith(Const.JSON_ARRAY_START)){
+		if (str.startsWith(Const.JSON_ARRAY_START)) {
 			System.out.println(str);
 		}
-		
+
 		String column = "rowkey";
 		Scan scan = new Scan();
-		arr = column.split(",",-1);
+		arr = column.split(",", -1);
 		if (column != null && !column.equals(Const.MAPPER_TYPE_ROWKEY)) {
 			System.out.println(column);
 			if (null != arr && arr.length > 0) {
@@ -63,7 +63,12 @@ public class Test {
 		scan.setBatch(0);
 		scan.setCaching(10000);
 		System.out.println(scan.toJSON());
-		String s = new String(Bytes.toBytesBinary("attr:movt_area_\\xE6\\xAC\\xA7\\xE7\\xBE\\x8E_type_\\xE7\\x94\\xB5\\xE5\\xBD\\xB1"),"utf-8");
+		String s = new String(
+				Bytes.toBytesBinary("attr:movt_area_\\xE6\\xAC\\xA7\\xE7\\xBE\\x8E_type_\\xE7\\x94\\xB5\\xE5\\xBD\\xB1"),
+				"utf-8");
+		System.out.println(s);
+		s = new String(
+				Bytes.toBytesBinary("attr:movt_category_\\xE4\\xBC\\xA6\\xE7\\x90\\x86_area_\\xE9\\x9F\\xA9\\xE5\\x9B\\xBD_type_\\xE7\\x94\\xB5\\xE5\\xBD\\xB1"));
 		System.out.println(s);
 		
 	}
