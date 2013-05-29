@@ -4,8 +4,11 @@ import java.io.IOException;
 
 import net.hbase.secondaryindex.util.Const;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -20,6 +23,17 @@ public class LoadMapper extends
 	private byte[] cellValue = null;
 	private byte[] rowkey = null;
 	private long ts = System.currentTimeMillis();
+
+	public Configuration config;
+	public HTable table;
+
+	@Override
+	protected void setup(Context context) throws IOException,
+			InterruptedException {
+		config = context.getConfiguration();
+		table = new HTable(config, Bytes.toBytes(config
+				.get(TableOutputFormat.OUTPUT_TABLE)));
+	}
 
 	@Override
 	protected void map(LongWritable key, Text value, Context context)
@@ -49,10 +63,22 @@ public class LoadMapper extends
 				put.add(family, qualifier, cellValue);
 
 				context.write(new ImmutableBytesWritable(rowkey), put);
+//				table.incrementColumnValue(rowkey, family,
+//						Const.COLUMN_RK_COUNTER_BYTE, 1L);
+				long cur = table.incrementColumnValue(rowkey, family,
+						Const.COLUMN_RK_COUNTER_BYTE, 1L);
+				System.out.println(cur);
+			
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	protected void cleanup(Context context) throws IOException,
+			InterruptedException {
+		if (null != table)
+			table.close();
 	}
 }
