@@ -205,3 +205,6 @@ usage: Build-Secondary-Index  -c <family:qualifier> [-d] [-e <end-date>]
  -v,--versions <versions>          the versions of each cell to build
                                    index(default is Integer.MAX_VALUE)
 
+
+##License
+Released under the GPLv3 license. For full details, pleasesee the LICENSE file included in this distribution.
