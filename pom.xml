@@ -4,7 +4,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>net.hbase</groupId>
+	<groupId>com.adintellig</groupId>
 	<artifactId>hbase-secondary-index</artifactId>
 	<version>0.1</version>
 	<packaging>jar</packaging>
